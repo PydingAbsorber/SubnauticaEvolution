@@ -1,146 +1,172 @@
-import { useState, useEffect } from 'react'
-import reactLogo from './assets/react.svg'
-import './App.css'
-import Modal from './Modal/Modal';
-import Modal2 from './Modal/Modal2';
-import store from 'store';
+import React, { createContext, useContext, useState } from 'react';
 
-function App() {
-    const [fishFood, setFishFood] = useState(parseInt(localStorage.getItem('fishFood')) || 0);
-    const [baseChance, setBaseChance] = useState(parseInt(localStorage.getItem('baseChance')) || 0);
-    const [fishBonus, setFishBonus] = useState(parseInt(localStorage.getItem('fishBonus')) || 0);
-    const [fishType, setFishType] = useState(parseInt(localStorage.getItem('fishType')) || 0);
-    const [fishLvl, setFishLvl] = useState(parseInt(localStorage.getItem('fishLvl')) || 0);
-    const [fishFoodMax, setfishFoodMax] = useState(parseInt(localStorage.getItem('fishFoodMax')) || 0);
-    store.set('storeFish', fishFood);
-    const storeFish = store.get('storeFish');
-
-    useEffect(() => {
-        window.addEventListener('unload', handleTabClosing)
-        return () => {
-            window.removeEventListener('unload',handleTabClosing)
-        }
-    })
-    const handleTabClosing = () => {
-        localStorage.setItem('fishFood', fishFood.toString());
-        localStorage.setItem('baseChance', baseChance.toString());
-        localStorage.setItem('fishBonus', fishBonus.toString());
-        localStorage.setItem('fishType', fishType.toString());
-        localStorage.setItem('fishLvl', fishLvl.toString());
-        localStorage.setItem('fishFoodMax', fishFoodMax.toString());
+// Стили для чёрно-фиолетового дизайна
+const styles = {
+    app: {
+        display: 'flex', // Используем flexbox
+        justifyContent: 'flex-end', // Выравниваем содержимое справа
+        alignItems: 'center', // Центрируем содержимое по вертикали
+        minHeight: '100vh',
+        padding: '20px',
+        color: 'white',
+        backgroundColor: 'black',
+        fontFamily: 'Arial, sans-serif',
+    },
+    // Остальные стили не изменяются
+    header: {
+        color: 'violet',
+    },
+    main: {
+        backgroundColor: '#2C2C2C',
+        border: '1px solid violet',
+        padding: '20px',
+        borderRadius: '5px',
+        width: '100%', 
+        minHeight: '90vh',
+        margin: '0 20px 0 0', // Отступ справа, чтобы не прилипать к краю экрана
+    },
+    profile: {
+        backgroundColor: '#3E3E3E',
+        border: '1px solid violet',
+        padding: '20px',
+        borderRadius: '5px',
+        width: '100%', 
+        minHeight: '90vh',
+        margin: '0 20px 20px 0', // Отступ снизу и справа
+    },
+    loginPage: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '90vh',
+        width: '100%'
+    },
+    formContainer: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        padding: '20px',
+        border: '1px solid violet',
+        borderRadius: '5px',
+        backgroundColor: '#2C2C2C',
+    },
+    input: {
+        margin: '10px 0',
+        padding: '10px',
+        borderRadius: '5px',
+        border: '1px solid violet',
+        backgroundColor: '#3E3E3E',
+        color: 'white',
+    },
+    loginButton: {
+        padding: '10px 20px',
+        borderRadius: '5px',
+        border: 'none',
+        backgroundColor: 'violet',
+        color: 'white',
+        cursor: 'pointer',
     }
-    const [buttonAnimation, setButtonAnimation] = useState(false);
-    const [buttonAnimation2, setButtonAnimation2] = useState(false);
-    const [buttonAnimation3, setButtonAnimation3] = useState(false);
-    const [textAnimation, setTextAnimation] = useState(false);
-    const [modalActive, setModalActive] = useState(false);
-    const [modalActive2, setModalActive2] = useState(false);
-    const handleCollect = () => {
-        setButtonAnimation(true);
-        if (fishType == 0) {
-            if (fishLvl > 5)
-                setBaseChance(0.01+(fishLvl/300));
-            if (fishLvl > 10)
-                setFishBonus(1+(fishLvl-10));
-        }
-        const audio1 = new Audio("/click1.mp3");
-        const audio2 = new Audio("/click2.mp3");
-        const audio3 = new Audio("/bigclick.mp3");
-        if (Math.random() < 0.1 + baseChance) {
-            setFishFood(fishFood + 2 + fishBonus);
-            setTextAnimation(true);
-            audio3.play();
-        } else {
-            setFishFood(fishFood + 1);
-            if (Math.random() > 0.5)
-                audio1.play(); else audio2.play();
-        }
-        document.body.style.userSelect = 'none';
-        setTimeout(() => {
-            setButtonAnimation(false);
-            setTextAnimation(false);
-            document.body.style.userSelect = 'auto';
-        }, 250);
-    };
-    const handleUpgrade = () => {
-        setButtonAnimation2(true);
-        const audio1 = new Audio("/click1.mp3");
-        const audio2 = new Audio("/click2.mp3");
-        if (Math.random() > 0.5)
-            audio1.play(); else audio2.play();
-        document.body.style.userSelect = 'none';
-        if (modalActive == true)
-            setModalActive(false);
-        else setModalActive(true);
-        setTimeout(() => {
-            setButtonAnimation2(false);
-            setTextAnimation(false);
-            document.body.style.userSelect = 'auto';
-        }, 250);
-    };
-    const handleFlora = () => {
-        setButtonAnimation3(true);
-        const audio1 = new Audio("/click1.mp3");
-        const audio2 = new Audio("/click2.mp3");
-        if (Math.random() > 0.5)
-            audio1.play(); else audio2.play();
-        document.body.style.userSelect = 'none';
-        if (modalActive2 == true)
-            setModalActive2(false);
-        else setModalActive2(true);
-        setTimeout(() => {
-            setButtonAnimation3(false);
-            setTextAnimation(false);
-            document.body.style.userSelect = 'auto';
-        }, 250);
-    };
-  return (
-      <div className="App">
-        <Modal active={modalActive} setActive={setModalActive} fish={fishFood} setFish={setFishFood} lvl={fishLvl} setLvl={setFishLvl} />
-        <Modal2 active={modalActive2} setActive={setModalActive2} fish={fishFood} setFish={setFishFood} />
-        <div>
-                <img src="/Peeper.png" className="fish" />
-        </div>
-        <div>
-            <p className="water-text">
-                  Your Lvl: {fishLvl}
-            </p>
-        </div>
-        <div className="middle-button">
-        <button className={buttonAnimation ? 'water-button-animation' : 'water-button'} onClick={handleCollect}>
-                    <span className="button-text"> Harvest fish food </span>
-        </button>
-        </div>
-        <div className="left-button">
-        <button className={buttonAnimation2 ? 'water-button2-animation' : 'water-button2'} onClick={handleUpgrade}>
-                    <span className="button-text-upgrade"> Open fish upgrades </span> 
-        </button>
-        </div>
-        <div className="right-button">
-            <button className={buttonAnimation3 ? 'water-button3-animation' : 'water-button3'} onClick={handleFlora}>
-                <span className="button-text-flora"> Open flora upgrades </span>
-            </button>
-        </div>
-        <div>
-              <p className={textAnimation ? 'water-text-animation' : 'water-text'}>
-            You have {fishFood} fish food!
-        </p>
-        </div>
-        <div>
-        <a href="https://vitejs.dev" target="_blank">
-            <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-            <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-        </div>
-        <div>
-            <p className="read-the-docs">
-                Made by Osadcii Iurii Cr-214 FCIM
-            </p>
-        </div>
-    </div>
-  )
+};
+
+
+// Создаем контекст для управления авторизацией
+const AuthContext = createContext();
+
+// Хук для использования контекста авторизации
+const useAuth = () => useContext(AuthContext);
+
+// Главная страница
+class MainPage extends React.Component {
+    render() {
+        return (
+            <div style={styles.main}>
+                {/* Перемещаем кнопку в верхнюю часть */}
+                <div style={{ width: '100%', textAlign: 'right' }}>
+                    <button onClick={this.props.goToProfile} style={{ marginBottom: '10px' }}>Go to profile</button>
+                </div>
+                <h1 style={styles.header}>Welcome to the home page!</h1>
+                <p>This is the main content of the page.</p>
+            </div>
+        );
+    }
 }
 
-export default App
+
+// Страница профиля
+class ProfilePage extends React.Component {
+    render() {
+        return (
+            <div style={styles.profile}>
+                {/* Перемещаем кнопку в верхнюю часть */}
+                <div style={{ width: '100%', textAlign: 'right' }}>
+                    <button onClick={this.props.goToMain} style={{ marginBottom: '10px' }}>To Home page</button>
+                </div>
+                <h1 style={styles.header}>Your profile</h1>
+                <p>Information about your profile:</p>
+                <p>Login:</p>
+                <p>Password:</p>
+                <p>Registration date:</p>
+            </div>
+        );
+    }
+}
+
+const LoginPage = ({ onLogin }) => {
+    return (
+        <div style={styles.loginPage}>
+            <div style={styles.formContainer}>
+                <input
+                    type="text"
+                    placeholder="Login"
+                    style={styles.input}
+                />
+                <input
+                    type="password"
+                    placeholder="Password"
+                    style={styles.input}
+                />
+                <button onClick={onLogin} style={styles.loginButton}>Login / Register</button>
+            </div>
+        </div>
+    );
+};
+
+
+// Компонент для условного рендеринга страниц
+const App = () => {
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [currentPage, setCurrentPage] = useState('main'); // main или profile
+
+    const goToProfile = () => setCurrentPage('profile');
+    const goToMain = () => setCurrentPage('main');
+
+    const handleLogin = () => {
+        setIsAuthenticated(true); 
+    };
+
+    const renderPage = () => {
+        if (!isAuthenticated) {
+            return <LoginPage onLogin={handleLogin} />;
+        } else {
+            switch (currentPage) {
+                case 'main':
+                    return <MainPage goToProfile={goToProfile} />;
+                case 'profile':
+                    return <ProfilePage goToMain={goToMain} />;
+                default:
+                    return <MainPage goToProfile={goToProfile} />;
+            }
+        }
+    };
+
+
+    return (
+        <AuthContext.Provider value={{ isAuthenticated, setIsAuthenticated }}>
+            <div style={styles.app}>
+                {renderPage()}
+            </div>
+        </AuthContext.Provider>
+    );
+};
+
+export default App;
